@@ -2,162 +2,260 @@
 Deshazte de suscripciones y dale una nueva vida a tu Ordenador/portatil/dispositivo antiguo :D
 
 
-# Debian + XFCE + CasaOS + Docker
+# 🖥️ Debian + XFCE + CasaOS + Docker
 
-Guía paso a paso para instalar un servidor con **Debian**, interfaz gráfica **XFCE**, **CasaOS** y **Docker**, utilizando un ordenador con Windows y **Rufus** para crear el USB de instalación.
+Guía paso a paso para montar un servidor doméstico utilizando:
 
-La guía también incluye la administración básica de contenedores Docker y una sección para trabajar con Stremio.
+* **Debian**
+* **XFCE** como interfaz gráfica
+* **GRUB** como gestor de arranque
+* **CasaOS** para administrar aplicaciones
+* **Docker** para ejecutar contenedores
+* **Docker Compose** para gestionar servicios
 
-> ⚠️ **Importante:** antes de instalar Debian, realiza una copia de seguridad de todos los datos importantes. Dependiendo del particionado elegido, el proceso puede borrar completamente el disco.
-
----
-
-## 📋 Índice
-
-1. [Requisitos](#1-requisitos)
-2. [Descargar Debian desde Windows](#2-descargar-debian-desde-windows)
-3. [Crear USB de Debian con Rufus](#3-crear-usb-de-debian-con-rufus)
-4. [Arrancar desde el USB](#4-arrancar-desde-el-usb)
-5. [Instalar Debian](#5-instalar-debian)
-6. [Configurar el mirror de paquetes](#6-configurar-el-mirror-de-paquetes)
-7. [Instalar el entorno gráfico XFCE](#7-instalar-el-entorno-gráfico-xfce)
-8. [Instalar GRUB](#8-instalar-grub)
-9. [Primer arranque](#9-primer-arranque)
-10. [Instalar CasaOS](#10-instalar-casaos)
-11. [Comprobar Docker](#11-comprobar-docker)
-12. [Administrar contenedores Docker](#12-administrar-contenedores-docker)
-13. [Docker Compose](#13-docker-compose)
-14. [Trabajar con Stremio](#14-trabajar-con-stremio)
-15. [Eliminar Stremio](#15-eliminar-stremio)
-16. [Comandos rápidos](#16-comandos-rápidos)
-17. [Diagnóstico](#17-diagnóstico)
-18. [Arquitectura final](#18-arquitectura-final)
+La preparación del USB de instalación se realizará desde **Windows utilizando Rufus**.
 
 ---
 
-# 1. Requisitos
+# 📋 Índice
+
+1. [Antes de Comenzar](#1-antes-de-comenzar)
+2. [Crear el USB de Debian con Rufus](#2-crear-el-usb-de-debian-con-rufus)
+3. [Arrancar desde el USB](#3-arrancar-desde-el-usb)
+4. [Instalar Debian](#4-instalar-debian)
+5. [Configurar el mirror de paquetes](#5-configurar-el-mirror-de-paquetes)
+6. [Instalar XFCE](#6-instalar-xfce)
+7. [Instalar GRUB](#7-instalar-grub)
+8. [Primer arranque](#8-primer-arranque)
+9. [Instalar CasaOS](#9-instalar-casaos)
+10. [Comprobar Docker](#10-comprobar-docker)
+11. [Administrar contenedores Docker](#11-administrar-contenedores-docker)
+12. [Docker Compose](#12-docker-compose)
+13. [Trabajar con Stremio](#13-trabajar-con-stremio)
+14. [Eliminar Stremio](#14-eliminar-stremio)
+15. [Diagnóstico](#15-diagnóstico)
+16. [Arquitectura final](#16-arquitectura-final)
+
+---
+
+# 1. Antes de Comenzar
+
+Antes de empezar la instalación necesitamos preparar todo el material necesario.
+
+## 💻 Hardware necesario
 
 Necesitaremos:
 
-* Un ordenador donde instalar Debian.
+* Un ordenador donde instalaremos Debian.
 * Un ordenador con Windows para preparar el USB.
 * Un pendrive de **8 GB o más**.
 * Conexión a Internet.
-* Teclado y monitor para realizar la instalación.
+* Teclado y monitor para el servidor.
+* Una conexión de red, preferiblemente Ethernet.
 * Una copia de seguridad de los datos importantes.
 
-### ⚠️ Atención
-
-El pendrive utilizado para crear el instalador será formateado.
-
-Además, si durante la instalación de Debian elegimos utilizar todo el disco, los datos existentes en ese disco serán eliminados.
+> ⚠️ **IMPORTANTE:** si durante la instalación elegimos utilizar todo el disco, los datos existentes en ese disco serán eliminados.
 
 ---
 
-# 2. Descargar Debian desde Windows
+## 📦 Software necesario
 
-Desde el ordenador con Windows descargaremos la ISO de Debian.
+### Debian
 
-Se recomienda utilizar la imagen **netinst** si tenemos conexión a Internet durante la instalación.
+Para este proyecto utilizaremos:
 
-Guardaremos el archivo `.iso` en una ubicación fácil de encontrar, por ejemplo:
+**Debian 12 — Bookworm**
 
-```text
-Descargas/debian.iso
+CasaOS documenta Debian 12 como una distribución oficialmente soportada, probada y recomendada.
+
+### ISO recomendada
+
+Utilizaremos:
+
+**Debian 12 Bookworm — 64 bits (amd64) — Netinst**
+
+La imagen `netinst` es pequeña y descarga los paquetes adicionales desde Internet durante la instalación.
+
+[Descargar Debian 12 Bookworm](https://www.debian.org/releases/bookworm/debian-installer/?utm_source=chatgpt.com)
+
+> 💡 Aunque Debian 13 Trixie es actualmente la versión estable más reciente, este tutorial utiliza Debian 12 porque es la versión que CasaOS documenta como probada y recomendada.
+
+---
+
+## 🪟 Rufus
+
+Utilizaremos **Rufus** para crear el USB de instalación desde Windows.
+
+Rufus es una herramienta para crear unidades USB arrancables a partir de imágenes ISO.
+
+[Descargar Rufus — página oficial](https://rufus.ie/es/?utm_source=chatgpt.com)
+
+También podemos descargar directamente la versión para Windows x64 desde la página oficial.
+
+[Descargas de Rufus](https://rufus.ie/downloads/?utm_source=chatgpt.com)
+
+---
+
+## 🏠 CasaOS
+
+CasaOS será la interfaz web que utilizaremos para administrar nuestro servidor y sus aplicaciones.
+
+El proyecto oficial de CasaOS mantiene el instalador mediante:
+
+```shell
+curl -fsSL https://get.casaos.io | sudo bash
 ```
 
----
+[CasaOS — repositorio oficial de GitHub](https://github.com/IceWhaleTech/CasaOS?utm_source=chatgpt.com)
 
-# 3. Crear USB de Debian con Rufus
+[CasaOS — página oficial](https://www.casaos.io/?utm_source=chatgpt.com)
 
-Para crear el USB utilizaremos **Rufus**.
-
-Descargar y ejecutar Rufus en Windows.
-
-Conectar el pendrive al ordenador.
-
-> ⚠️ **Todo el contenido del pendrive será eliminado.**
+> ⚠️ CasaOS instalará y configurará componentes necesarios, incluido Docker. No es necesario instalar Docker manualmente antes de ejecutar el instalador de CasaOS. El instalador oficial comprueba e instala Docker cuando es necesario.
 
 ---
 
-## 3.1 Seleccionar el dispositivo
+## 💾 Pendrive
+
+Necesitaremos un pendrive de al menos:
+
+```text
+8 GB
+```
+
+Se recomienda utilizar uno vacío.
+
+> ⚠️ Rufus formateará el pendrive y eliminará todos sus datos.
+
+---
+
+## 🌐 Conexión a Internet
+
+La instalación **Netinst** necesita conexión a Internet para descargar paquetes.
+
+Para el servidor recomendamos utilizar:
+
+```text
+Ethernet
+```
+
+en lugar de Wi-Fi, especialmente durante la instalación y configuración inicial.
+
+---
+
+## 🧰 Resumen de descargas
+
+| Recurso            | Uso                         | Descarga                                                                                       |
+| ------------------ | --------------------------- | ---------------------------------------------------------------------------------------------- |
+| Debian 12 Bookworm | Sistema operativo           | [Debian 12](https://www.debian.org/releases/bookworm/debian-installer/?utm_source=chatgpt.com) |
+| Rufus              | Crear USB arrancable        | [Rufus oficial](https://rufus.ie/es/?utm_source=chatgpt.com)                                   |
+| CasaOS             | Administración del servidor | [CasaOS oficial](https://www.casaos.io/?utm_source=chatgpt.com)                                |
+| CasaOS GitHub      | Código y documentación      | [Repositorio de CasaOS](https://github.com/IceWhaleTech/CasaOS?utm_source=chatgpt.com)         |
+
+---
+
+## ✅ Lista de comprobación
+
+Antes de continuar deberíamos tener:
+
+* [ ] Ordenador servidor
+* [ ] Ordenador Windows
+* [ ] Pendrive de 8 GB o más
+* [ ] ISO de Debian 12 Bookworm
+* [ ] Rufus
+* [ ] Conexión a Internet
+* [ ] Copia de seguridad de los datos importantes
+* [ ] Teclado y monitor conectados al servidor
+
+Una vez tengamos todo preparado podemos comenzar.
+
+---
+
+# 2. Crear el USB de Debian con Rufus
+
+Conectar el pendrive al ordenador Windows.
 
 Abrir Rufus.
 
-En **Dispositivo**, seleccionar el pendrive que vamos a utilizar.
-
-Comprobar cuidadosamente que sea el dispositivo correcto.
+> ⚠️ Comprobar cuidadosamente que el dispositivo seleccionado sea el pendrive correcto.
 
 ---
 
-## 3.2 Seleccionar la ISO
+## 2.1 Seleccionar el dispositivo
 
-En **Selección de arranque** seleccionar:
+En **Dispositivo**, seleccionar el pendrive.
+
+---
+
+## 2.2 Seleccionar la ISO
+
+En **Selección de arranque**, seleccionar:
 
 ```text
 Disco o imagen ISO
 ```
 
-Después pulsar **SELECCIONAR** y elegir la ISO de Debian.
+Pulsar **SELECCIONAR**.
+
+Buscar la ISO de Debian 12 que hemos descargado.
 
 ---
 
-## 3.3 Esquema de partición
+## 2.3 Configurar Rufus
 
-Para la mayoría de ordenadores modernos:
+Para un ordenador moderno con UEFI:
 
 ```text
 Esquema de partición: GPT
 Sistema de destino: UEFI
 ```
 
-En ordenadores antiguos que utilicen BIOS/Legacy puede ser necesario:
+Para equipos antiguos con BIOS/Legacy:
 
 ```text
 Esquema de partición: MBR
 Sistema de destino: BIOS
 ```
 
-Si el ordenador es moderno, normalmente debemos utilizar **GPT + UEFI**.
+En la mayoría de equipos modernos utilizaremos:
+
+```text
+GPT + UEFI
+```
 
 ---
 
-## 3.4 Crear el USB
+## 2.4 Crear el USB
 
 Pulsar:
 
 **EMPEZAR**
 
-Rufus puede mostrar una advertencia indicando que todos los datos del USB serán eliminados.
+Rufus mostrará una advertencia indicando que los datos del USB serán eliminados.
 
 Confirmar.
 
 Esperar hasta que Rufus indique que el proceso ha terminado.
 
-Ya tendremos nuestro USB de instalación de Debian.
-
 ---
 
-# 4. Arrancar desde el USB
+# 3. Arrancar desde el USB
 
-Conectar el USB al ordenador donde queremos instalar Debian.
+Conectar el USB al ordenador donde instalaremos Debian.
 
-Reiniciar o encender el ordenador y abrir el **Boot Menu**.
+Encender o reiniciar el ordenador.
 
-Las teclas más habituales son:
+Abrir el menú de arranque.
+
+Las teclas habituales son:
 
 * `F12`
 * `F11`
 * `F8`
 * `ESC`
 
-La tecla depende del fabricante.
+Seleccionar el USB.
 
-Seleccionar el USB de Debian.
-
-Aparecerá el menú de instalación.
-
-Seleccionar:
+Cuando aparezca el instalador de Debian seleccionar:
 
 ```text
 Graphical Install
@@ -165,13 +263,11 @@ Graphical Install
 
 ---
 
-# 5. Instalar Debian
+# 4. Instalar Debian
 
-Seguir el asistente gráfico de Debian.
+Seguir el asistente gráfico.
 
----
-
-## 5.1 Idioma
+## 4.1 Idioma
 
 Seleccionar:
 
@@ -179,9 +275,7 @@ Seleccionar:
 Español
 ```
 
----
-
-## 5.2 Ubicación
+## 4.2 País
 
 Seleccionar:
 
@@ -189,9 +283,7 @@ Seleccionar:
 España
 ```
 
----
-
-## 5.3 Teclado
+## 4.3 Teclado
 
 Seleccionar:
 
@@ -199,41 +291,31 @@ Seleccionar:
 Español
 ```
 
----
+## 4.4 Nombre del equipo
 
-## 5.4 Nombre del equipo
-
-Podemos utilizar:
+Por ejemplo:
 
 ```text
 debian-server
 ```
 
-El nombre puede ser diferente.
+## 4.5 Dominio
+
+Si no tenemos un dominio propio:
+
+```text
+Dejar vacío
+```
+
+## 4.6 Usuarios
+
+Crear el usuario que utilizaremos para administrar Debian.
 
 ---
 
-## 5.5 Dominio
+# 5. Configurar el mirror de paquetes
 
-Si no tenemos un dominio propio, podemos dejar este campo vacío.
-
----
-
-## 5.6 Usuarios
-
-Configurar las credenciales solicitadas por el instalador.
-
-Crear un usuario normal para utilizar Debian.
-
-Para el uso diario es recomendable utilizar el usuario normal y emplear `sudo` cuando sea necesario.
-
----
-
-# 6. Configurar el mirror de paquetes
-
-Durante la instalación Debian preguntará desde qué servidor descargar los paquetes.
-
-Una configuración sencilla es:
+Cuando Debian solicite el servidor desde el que descargar paquetes:
 
 ### País
 
@@ -257,9 +339,9 @@ Dejar vacío
 
 ---
 
-# 7. Instalar el entorno gráfico XFCE
+# 6. Instalar XFCE
 
-Durante la instalación aparecerá una pantalla llamada:
+Cuando aparezca:
 
 **Selección de software**
 
@@ -271,23 +353,15 @@ Seleccionar:
 [x] Utilidades estándar del sistema
 ```
 
-No es necesario instalar varios entornos de escritorio.
+No es necesario instalar varios entornos gráficos.
 
-## ¿Por qué XFCE?
-
-XFCE es una opción adecuada para este proyecto porque:
-
-* Consume pocos recursos.
-* Es rápido.
-* Es sencillo.
-* Funciona bien en equipos modestos.
-* Proporciona una interfaz gráfica completa.
+XFCE proporciona una interfaz gráfica ligera que resulta adecuada para este proyecto.
 
 ---
 
-# 8. Instalar GRUB
+# 7. Instalar GRUB
 
-Durante la instalación aparecerá una pregunta similar a:
+Cuando Debian pregunte:
 
 > ¿Instalar el cargador de arranque GRUB?
 
@@ -297,11 +371,7 @@ Seleccionar:
 Sí
 ```
 
----
-
-## 8.1 Seleccionar el disco
-
-Cuando pregunte dónde instalar GRUB, seleccionar el disco principal.
+Cuando pregunte dónde instalarlo, seleccionar el disco principal.
 
 Por ejemplo:
 
@@ -315,9 +385,7 @@ o:
 /dev/nvme0n1
 ```
 
-### ⚠️ Importante
-
-Seleccionar el **disco**, no una partición.
+### ⚠️ No confundir disco y partición
 
 Correcto:
 
@@ -331,23 +399,20 @@ Incorrecto:
 /dev/sda1
 ```
 
-Si existen varios discos, comprobar cuidadosamente cuál corresponde al disco donde se ha instalado Debian.
+---
+
+# 8. Primer arranque
+
+Cuando termine la instalación:
+
+1. Reiniciar.
+2. Retirar el USB.
+3. Arrancar Debian.
+4. Iniciar sesión.
 
 ---
 
-# 9. Primer arranque
-
-Cuando finalice la instalación:
-
-1. Reiniciar el ordenador.
-2. Retirar el USB de instalación.
-3. Esperar a que aparezca GRUB.
-4. Iniciar Debian.
-5. Iniciar sesión con el usuario creado.
-
----
-
-## 9.1 Actualizar Debian
+## 8.1 Actualizar Debian
 
 Abrir una terminal:
 
@@ -356,15 +421,15 @@ sudo apt update
 sudo apt upgrade -y
 ```
 
-Instalar algunas herramientas básicas:
+Instalar `curl`:
 
 ```shell
-sudo apt install -y curl sudo
+sudo apt install -y curl
 ```
 
 ---
 
-## 9.2 Comprobar la IP del servidor
+## 8.2 Obtener la IP
 
 Ejecutar:
 
@@ -372,23 +437,25 @@ Ejecutar:
 hostname -I
 ```
 
-También podemos consultar toda la configuración de red:
+También podemos utilizar:
 
 ```shell
 ip addr
 ```
 
-Ejemplo de resultado:
+Ejemplo:
 
 ```text
 192.168.1.50
 ```
 
+Guardar esta dirección porque la utilizaremos para acceder a CasaOS.
+
 ---
 
-# 10. Instalar CasaOS
+# 9. Instalar CasaOS
 
-CasaOS proporciona una interfaz web para administrar aplicaciones y servicios.
+CasaOS proporciona una interfaz web para administrar el servidor.
 
 Ejecutar:
 
@@ -396,9 +463,15 @@ Ejecutar:
 curl -fsSL https://get.casaos.io | sudo bash
 ```
 
-Esperar a que finalice la instalación.
+Esperar a que termine la instalación.
 
-Después, desde otro ordenador conectado a la misma red, acceder a:
+El instalador oficial comprueba los requisitos del sistema y gestiona las dependencias necesarias.
+
+---
+
+## 9.1 Acceder a CasaOS
+
+Desde otro ordenador conectado a la misma red abrir:
 
 ```text
 http://IP_DEL_SERVIDOR
@@ -410,27 +483,25 @@ Por ejemplo:
 http://192.168.1.50
 ```
 
+Completar el asistente inicial de CasaOS.
+
 ---
 
-# 11. Comprobar Docker
+# 10. Comprobar Docker
 
-CasaOS utiliza Docker para ejecutar muchas de sus aplicaciones.
+CasaOS utiliza Docker para ejecutar sus aplicaciones.
 
-Comprobar que Docker está funcionando:
+Comprobar el servicio:
 
 ```shell
 sudo systemctl status docker
 ```
 
-Deberíamos encontrar:
+Debemos encontrar:
 
 ```text
 Active: active (running)
 ```
-
----
-
-## 11.1 Iniciar Docker
 
 Si Docker está detenido:
 
@@ -438,9 +509,7 @@ Si Docker está detenido:
 sudo systemctl start docker
 ```
 
----
-
-## 11.2 Activar Docker al arrancar
+Para habilitar el inicio automático:
 
 ```shell
 sudo systemctl enable docker
@@ -448,7 +517,7 @@ sudo systemctl enable docker
 
 ---
 
-## 11.3 Comprobar la versión
+## 10.1 Comprobar Docker
 
 ```shell
 docker --version
@@ -456,33 +525,23 @@ docker --version
 
 ---
 
-## 11.4 Comprobar Docker Compose
-
-En las versiones modernas de Docker:
+## 10.2 Comprobar Docker Compose
 
 ```shell
 docker compose version
 ```
 
-Si aparece una versión, Docker Compose está disponible.
-
 ---
 
-# 12. Administrar contenedores Docker
+# 11. Administrar contenedores Docker
 
-## 12.1 Ver contenedores activos
+## Ver contenedores activos
 
 ```shell
 docker ps
 ```
 
-Este comando muestra únicamente los contenedores que están ejecutándose.
-
----
-
-## 12.2 Ver todos los contenedores
-
-Para mostrar también los contenedores detenidos:
+## Ver todos los contenedores
 
 ```shell
 docker ps -a
@@ -497,35 +556,35 @@ a1b2c3d4e5f6   example     Up 10 minutes   example
 
 ### Estados habituales
 
-Contenedor funcionando:
-
 ```text
 Up
 ```
 
-Contenedor detenido:
+El contenedor está funcionando.
 
 ```text
 Exited
 ```
 
-Contenedor reiniciándose:
+El contenedor está detenido.
 
 ```text
 Restarting
 ```
 
+El contenedor está reiniciándose.
+
 ---
 
-## 12.3 Iniciar un contenedor
+## Iniciar un contenedor
 
-Podemos utilizar el nombre:
+Por nombre:
 
 ```shell
 docker start NOMBRE_DEL_CONTENEDOR
 ```
 
-O el Container ID:
+Por Container ID:
 
 ```shell
 docker start CONTAINER_ID
@@ -533,7 +592,7 @@ docker start CONTAINER_ID
 
 ---
 
-## 12.4 Reiniciar un contenedor
+## Reiniciar
 
 ```shell
 docker restart CONTAINER_ID
@@ -541,7 +600,7 @@ docker restart CONTAINER_ID
 
 ---
 
-## 12.5 Detener un contenedor
+## Detener
 
 ```shell
 docker stop CONTAINER_ID
@@ -549,151 +608,7 @@ docker stop CONTAINER_ID
 
 ---
 
-## 12.6 Ver los logs
-
-```shell
-docker logs CONTAINER_ID
-```
-
-Para verlos en tiempo real:
-
-```shell
-docker logs -f CONTAINER_ID
-```
-
----
-
-# 13. Docker Compose
-
-Docker Compose permite administrar aplicaciones compuestas por varios contenedores.
-
-Normalmente encontraremos archivos como:
-
-```text
-compose.yml
-```
-
-o:
-
-```text
-docker-compose.yml
-```
-
-Entrar en la carpeta donde está el archivo:
-
-```shell
-cd /ruta/del/proyecto
-```
-
----
-
-## 13.1 Iniciar los servicios
-
-```shell
-docker compose up -d
-```
-
-La opción `-d` ejecuta los contenedores en segundo plano.
-
----
-
-## 13.2 Ver el estado
-
-```shell
-docker compose ps
-```
-
----
-
-## 13.3 Ver los logs
-
-```shell
-docker compose logs
-```
-
----
-
-## 13.4 Ver los logs en tiempo real
-
-```shell
-docker compose logs -f
-```
-
-Para salir:
-
-```text
-Ctrl + C
-```
-
----
-
-## 13.5 Detener el proyecto
-
-```shell
-docker compose down
-```
-
-Esto detiene y elimina los contenedores definidos por Compose.
-
-Los volúmenes y las imágenes no se eliminan automáticamente.
-
----
-
-# 14. Trabajar con Stremio
-
-> ⚠️ **Importante:** Stremio puede utilizar diferentes componentes e imágenes Docker. Una imagen que proporcione un servidor/backend no necesariamente proporciona una interfaz web completa.
-
-Antes de trabajar con Stremio, comprobar qué contenedor se ha instalado.
-
----
-
-## 14.1 Buscar el contenedor
-
-```shell
-docker ps -a
-```
-
-Buscar un contenedor relacionado con Stremio.
-
-Por ejemplo:
-
-```text
-stremio
-```
-
-o:
-
-```text
-stremio-server
-```
-
----
-
-## 14.2 Comprobar si está funcionando
-
-```shell
-docker ps
-```
-
-Si el contenedor aparece con:
-
-```text
-Up
-```
-
-está ejecutándose.
-
----
-
-## 14.3 Ver los logs
-
-Por nombre:
-
-```shell
-docker logs stremio
-```
-
-Por Container ID:
+## Ver logs
 
 ```shell
 docker logs CONTAINER_ID
@@ -707,45 +622,119 @@ docker logs -f CONTAINER_ID
 
 ---
 
-## 14.4 Comprobar los puertos
+# 12. Docker Compose
 
-Ejecutar:
+Entrar en la carpeta que contiene `compose.yml` o `docker-compose.yml`:
+
+```shell
+cd /ruta/del/proyecto
+```
+
+## Iniciar
+
+```shell
+docker compose up -d
+```
+
+## Ver estado
+
+```shell
+docker compose ps
+```
+
+## Ver logs
+
+```shell
+docker compose logs
+```
+
+## Ver logs en tiempo real
+
+```shell
+docker compose logs -f
+```
+
+Salir de los logs:
+
+```text
+Ctrl + C
+```
+
+## Detener
+
+```shell
+docker compose down
+```
+
+---
+
+# 13. Trabajar con Stremio
+
+> ⚠️ Una imagen Docker de Stremio que proporcione un servidor/backend no necesariamente proporciona una interfaz web completa.
+
+Primero comprobar los contenedores:
+
+```shell
+docker ps -a
+```
+
+Buscar el contenedor correspondiente a Stremio.
+
+---
+
+## 13.1 Comprobar el estado
 
 ```shell
 docker ps
 ```
 
-Buscar la columna `PORTS`.
+---
 
-Ejemplo:
+## 13.2 Consultar los logs
+
+```shell
+docker logs NOMBRE_DEL_CONTENEDOR
+```
+
+o:
+
+```shell
+docker logs CONTAINER_ID
+```
+
+En tiempo real:
+
+```shell
+docker logs -f CONTAINER_ID
+```
+
+---
+
+## 13.3 Comprobar los puertos
+
+```shell
+docker ps
+```
+
+Revisar la columna `PORTS`.
+
+Por ejemplo:
 
 ```text
 0.0.0.0:11470->11470/tcp
 ```
 
-Esto significa que el puerto `11470` del contenedor está publicado en el puerto `11470` del servidor.
-
-En ese caso podemos probar:
+Si el servicio utiliza ese puerto, se puede probar:
 
 ```text
 http://IP_DEL_SERVIDOR:11470
 ```
 
-Por ejemplo:
-
-```text
-http://192.168.1.50:11470
-```
-
-> El resultado dependerá de la imagen de Stremio utilizada. Que el puerto esté publicado no significa necesariamente que exista una interfaz web completa.
-
 ---
 
-# 15. Eliminar Stremio
+# 14. Eliminar Stremio
 
-## 15.1 Obtener el Container ID
-
-Ejecutar:
+## Ver el Container ID
 
 ```shell
 docker ps -a
@@ -758,214 +747,73 @@ CONTAINER ID   IMAGE      STATUS        NAMES
 a1b2c3d4e5f6   stremio    Up 5 minutes  stremio
 ```
 
-En este caso el Container ID es:
-
-```text
-a1b2c3d4e5f6
-```
-
----
-
-## 15.2 Detener el contenedor
+## Detener
 
 ```shell
 docker stop a1b2c3d4e5f6
 ```
 
----
-
-## 15.3 Eliminar el contenedor
+## Eliminar
 
 ```shell
 docker rm a1b2c3d4e5f6
 ```
 
----
-
-## 15.4 Detener y eliminar directamente
-
-También podemos utilizar:
+## Detener y eliminar directamente
 
 ```shell
 docker rm -f a1b2c3d4e5f6
 ```
 
-Esto detiene y elimina el contenedor.
-
 ---
 
-## 15.5 Eliminar la imagen
+## Eliminar la imagen
 
-Primero comprobar las imágenes instaladas:
+Primero:
 
 ```shell
 docker images
 ```
 
-Después eliminar la imagen correspondiente:
+Después:
 
 ```shell
 docker rmi NOMBRE_O_ID_DE_LA_IMAGEN
 ```
 
-> ⚠️ Eliminar una imagen no significa necesariamente eliminar los datos almacenados en volúmenes.
+> ⚠️ Eliminar una imagen no elimina necesariamente los volúmenes que contienen los datos de la aplicación.
 
 ---
 
-# 16. Comandos rápidos
+# 15. Diagnóstico
 
-## Debian
+Cuando una aplicación no funcione, seguir este orden.
 
-```shell
-# Actualizar repositorios
-sudo apt update
-
-# Actualizar paquetes
-sudo apt upgrade -y
-
-# Instalar herramientas básicas
-sudo apt install -y curl sudo
-
-# Mostrar IP
-hostname -I
-
-# Mostrar información de red
-ip addr
-```
-
----
-
-## Docker
-
-```shell
-# Ver contenedores activos
-docker ps
-
-# Ver todos los contenedores
-docker ps -a
-
-# Iniciar contenedor
-docker start CONTAINER_ID
-
-# Reiniciar contenedor
-docker restart CONTAINER_ID
-
-# Detener contenedor
-docker stop CONTAINER_ID
-
-# Eliminar contenedor
-docker rm CONTAINER_ID
-
-# Eliminar contenedor forzosamente
-docker rm -f CONTAINER_ID
-
-# Ver logs
-docker logs CONTAINER_ID
-
-# Ver logs en tiempo real
-docker logs -f CONTAINER_ID
-
-# Ver imágenes
-docker images
-```
-
----
-
-## Docker Compose
-
-```shell
-# Iniciar servicios
-docker compose up -d
-
-# Ver estado
-docker compose ps
-
-# Ver logs
-docker compose logs
-
-# Ver logs en tiempo real
-docker compose logs -f
-
-# Detener servicios
-docker compose down
-```
-
----
-
-## Servicio Docker
-
-```shell
-# Ver estado
-sudo systemctl status docker
-
-# Iniciar Docker
-sudo systemctl start docker
-
-# Activar Docker al arrancar
-sudo systemctl enable docker
-```
-
----
-
-# 17. Diagnóstico
-
-Cuando un contenedor no funciona, seguir estos pasos.
-
----
-
-## Paso 1 — Ver todos los contenedores
+## 15.1 Ver contenedores
 
 ```shell
 docker ps -a
 ```
 
-Comprobar si aparece como:
-
-```text
-Exited
-```
-
-o:
-
-```text
-Restarting
-```
-
----
-
-## Paso 2 — Consultar los logs
+## 15.2 Ver logs
 
 ```shell
 docker logs CONTAINER_ID
 ```
 
-Si necesitamos observar el error mientras ocurre:
-
-```shell
-docker logs -f CONTAINER_ID
-```
-
----
-
-## Paso 3 — Comprobar Docker
+## 15.3 Comprobar Docker
 
 ```shell
 sudo systemctl status docker
 ```
 
----
-
-## Paso 4 — Comprobar los puertos
+## 15.4 Comprobar puertos
 
 ```shell
 docker ps
 ```
 
-Revisar la columna `PORTS`.
-
----
-
-## Paso 5 — Si utilizamos Docker Compose
+## 15.5 Si utiliza Compose
 
 ```shell
 docker compose ps
@@ -979,9 +827,7 @@ docker compose logs
 
 ---
 
-# 18. Arquitectura final
-
-La instalación tendrá una estructura similar a:
+# 16. Arquitectura final
 
 ```text
                          ┌─────────────────────┐
@@ -1028,22 +874,37 @@ La instalación tendrá una estructura similar a:
 
 # 🎯 Objetivo del proyecto
 
-El objetivo es disponer de un servidor basado en Debian que pueda administrarse de diferentes formas:
+Al finalizar tendremos un servidor doméstico basado en Debian con:
 
-* **XFCE** para administración local mediante interfaz gráfica.
-* **CasaOS** para administrar aplicaciones desde el navegador.
-* **Docker** para ejecutar aplicaciones en contenedores.
-* **Docker Compose** para gestionar aplicaciones compuestas por varios servicios.
+* **Debian 12 Bookworm**
+* **XFCE**
+* **GRUB**
+* **CasaOS**
+* **Docker**
+* **Docker Compose**
 
-La estructura permite añadir posteriormente otros servicios sin tener que reinstalar Debian.
+CasaOS proporcionará una interfaz web para administrar las aplicaciones y Docker permitirá ejecutar los diferentes servicios en contenedores.
 
 ---
 
-# 📝 Notas
+# 📝 Notas importantes
 
-* Mantener Debian actualizado.
+* Realizar siempre una copia de seguridad antes de instalar Debian.
+* Comprobar cuidadosamente el disco seleccionado durante el particionado.
 * No ejecutar comandos que no entendamos.
-* Tener especial cuidado con comandos que eliminen discos, contenedores, imágenes o volúmenes.
-* Antes de eliminar un contenedor, comprobar si utiliza volúmenes con datos importantes.
-* Si una aplicación instalada desde CasaOS deja de funcionar, comprobar primero el estado del contenedor y sus logs.
-* Guardar los archivos `compose.yml` o `docker-compose.yml` utilizados para poder reconstruir los servicios posteriormente.
+* Tener especial cuidado con `docker rm`, `docker rmi` y comandos relacionados con volúmenes.
+* Mantener Debian actualizado.
+* Mantener CasaOS actualizado.
+* Guardar los archivos `compose.yml` utilizados para desplegar servicios.
+* Preferir Ethernet para el servidor.
+* Antes de instalar una aplicación Docker, comprobar qué imagen estamos utilizando y su documentación.
+
+---
+
+## 📚 Fuentes oficiales
+
+* [Debian](https://www.debian.org/?utm_source=chatgpt.com)
+* [Debian 12 Bookworm](https://www.debian.org/releases/bookworm/?utm_source=chatgpt.com)
+* [Rufus](https://rufus.ie/es/?utm_source=chatgpt.com)
+* [CasaOS](https://www.casaos.io/?utm_source=chatgpt.com)
+* [CasaOS en GitHub](https://github.com/IceWhaleTech/CasaOS?utm_source=chatgpt.com)
