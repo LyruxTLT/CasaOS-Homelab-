@@ -1,29 +1,62 @@
 # CasaOS-Homelab-
 Deshazte de suscripciones y dale una nueva vida a tu Ordenador/portatil/dispositivo antiguo :D
 
+# 🖥️ Servidor doméstico — Debian + XFCE + CasaOS + Docker + Stremio + ZeroTier
 
-# 🖥️ Debian + XFCE + CasaOS + Docker
+Guía completa para convertir un ordenador en un **servidor doméstico** utilizando:
 
-Guía paso a paso para montar un servidor doméstico utilizando:
+* 🐧 Debian 12 Bookworm
+* 🖥️ XFCE
+* ⚙️ GRUB
+* 🏠 CasaOS
+* 🐳 Docker
+* 📦 Docker Compose
+* 🎬 Stremio mediante Docker
+* 🔐 ZeroTier para acceso remoto
+* 💻 Windows + Rufus para preparar el USB de instalación
 
-* **Debian**
-* **XFCE** como interfaz gráfica
-* **GRUB** como gestor de arranque
-* **CasaOS** para administrar aplicaciones
-* **Docker** para ejecutar contenedores
-* **Docker Compose** para gestionar servicios
+La instalación se realizará de forma progresiva:
 
-La preparación del USB de instalación se realizará desde **Windows utilizando Rufus**.
+```text
+Windows
+   │
+   ├── Descargar Debian
+   └── Descargar Rufus
+          │
+          ▼
+     USB de Debian
+          │
+          ▼
+     Debian 12
+          │
+          ▼
+        XFCE
+          │
+          ▼
+       CasaOS
+          │
+          ▼
+        Docker
+          │
+          ▼
+       Stremio
+          │
+          ▼
+       ZeroTier
+          │
+          ▼
+ Acceso remoto a CasaOS
+```
 
 ---
 
-# 📋 Índice
+# 📑 Índice
 
-1. [Antes de Comenzar](#1-antes-de-comenzar)
+1. [Antes de instalar](#1-antes-de-instalar)
 2. [Crear el USB de Debian con Rufus](#2-crear-el-usb-de-debian-con-rufus)
-3. [Arrancar desde el USB](#3-arrancar-desde-el-usb)
+3. [Arrancar el servidor desde el USB](#3-arrancar-el-servidor-desde-el-usb)
 4. [Instalar Debian](#4-instalar-debian)
-5. [Configurar el mirror de paquetes](#5-configurar-el-mirror-de-paquetes)
+5. [Configurar Debian](#5-configurar-debian)
 6. [Instalar XFCE](#6-instalar-xfce)
 7. [Instalar GRUB](#7-instalar-grub)
 8. [Primer arranque](#8-primer-arranque)
@@ -31,349 +64,333 @@ La preparación del USB de instalación se realizará desde **Windows utilizando
 10. [Comprobar Docker](#10-comprobar-docker)
 11. [Administrar contenedores Docker](#11-administrar-contenedores-docker)
 12. [Docker Compose](#12-docker-compose)
-13. [Trabajar con Stremio](#13-trabajar-con-stremio)
-14. [Eliminar Stremio](#14-eliminar-stremio)
-15. [Diagnóstico](#15-diagnóstico)
-16. [Arquitectura final](#16-arquitectura-final)
+13. [Instalar y administrar Stremio](#13-instalar-y-administrar-stremio)
+14. [Instalar ZeroTier](#14-instalar-zerotier)
+15. [Configurar la red de ZeroTier](#15-configurar-la-red-de-zerotier)
+16. [Acceder a CasaOS desde cualquier lugar](#16-acceder-a-casaos-desde-cualquier-lugar)
+17. [Eliminar Stremio](#17-eliminar-stremio)
+18. [Diagnóstico](#18-diagnóstico)
+19. [Arquitectura final](#19-arquitectura-final)
 
 ---
 
-# 1. Antes de Comenzar
+# 1. Antes de instalar
 
-Antes de empezar la instalación necesitamos preparar todo el material necesario.
+Antes de comenzar necesitamos preparar todo lo necesario para realizar la instalación.
 
-## 💻 Hardware necesario
+> 📌 En este apartado solamente descargaremos aquello que necesitamos **antes de instalar Debian**.
+>
+> CasaOS, Docker, Stremio y ZeroTier se instalarán posteriormente desde el propio servidor o desde los dispositivos correspondientes.
+
+---
+
+## 1.1 Hardware necesario
 
 Necesitaremos:
 
-* Un ordenador donde instalaremos Debian.
-* Un ordenador con Windows para preparar el USB.
-* Un pendrive de **8 GB o más**.
-* Conexión a Internet.
-* Teclado y monitor para el servidor.
-* Una conexión de red, preferiblemente Ethernet.
-* Una copia de seguridad de los datos importantes.
+* 🖥️ Un ordenador que utilizaremos como servidor.
+* 💻 Un ordenador Windows para preparar el USB.
+* 💾 Un pendrive de al menos **8 GB**.
+* 🖥️ Monitor.
+* ⌨️ Teclado.
+* 🌐 Conexión a Internet.
+* 🔌 Cable Ethernet recomendado.
 
-> ⚠️ **IMPORTANTE:** si durante la instalación elegimos utilizar todo el disco, los datos existentes en ese disco serán eliminados.
+### Recomendación
+
+Siempre que sea posible, utilizaremos Ethernet para la configuración inicial del servidor.
 
 ---
 
-## 📦 Software necesario
+## 1.2 Copia de seguridad
 
-### Debian
+Antes de instalar Debian debemos asegurarnos de que no existe información importante en el disco del ordenador que vamos a convertir en servidor.
 
-Para este proyecto utilizaremos:
+La instalación puede borrar completamente el disco.
 
-**Debian 12 — Bookworm**
+> ⚠️ **IMPORTANTE:** realiza una copia de seguridad de cualquier archivo importante antes de continuar.
 
-CasaOS documenta Debian 12 como una distribución oficialmente soportada, probada y recomendada.
+---
 
-### ISO recomendada
+## 1.3 Descargar Debian
 
 Utilizaremos:
 
-**Debian 12 Bookworm — 64 bits (amd64) — Netinst**
+**Debian 12 Bookworm — 64 bits / amd64**
 
-La imagen `netinst` es pequeña y descarga los paquetes adicionales desde Internet durante la instalación.
+Para este proyecto utilizaremos Debian 12 porque CasaOS lo documenta como una versión probada y recomendada.
 
-[Descargar Debian 12 Bookworm](https://www.debian.org/releases/bookworm/debian-installer/?utm_source=chatgpt.com)
+### Descarga oficial
 
-> 💡 Aunque Debian 13 Trixie es actualmente la versión estable más reciente, este tutorial utiliza Debian 12 porque es la versión que CasaOS documenta como probada y recomendada.
+[Debian 12 Bookworm — Instalación oficial](https://www.debian.org/releases/bookworm/debian-installer/)
 
----
-
-## 🪟 Rufus
-
-Utilizaremos **Rufus** para crear el USB de instalación desde Windows.
-
-Rufus es una herramienta para crear unidades USB arrancables a partir de imágenes ISO.
-
-[Descargar Rufus — página oficial](https://rufus.ie/es/?utm_source=chatgpt.com)
-
-También podemos descargar directamente la versión para Windows x64 desde la página oficial.
-
-[Descargas de Rufus](https://rufus.ie/downloads/?utm_source=chatgpt.com)
-
----
-
-## 🏠 CasaOS
-
-CasaOS será la interfaz web que utilizaremos para administrar nuestro servidor y sus aplicaciones.
-
-El proyecto oficial de CasaOS mantiene el instalador mediante:
-
-```shell
-curl -fsSL https://get.casaos.io | sudo bash
-```
-
-[CasaOS — repositorio oficial de GitHub](https://github.com/IceWhaleTech/CasaOS?utm_source=chatgpt.com)
-
-[CasaOS — página oficial](https://www.casaos.io/?utm_source=chatgpt.com)
-
-> ⚠️ CasaOS instalará y configurará componentes necesarios, incluido Docker. No es necesario instalar Docker manualmente antes de ejecutar el instalador de CasaOS. El instalador oficial comprueba e instala Docker cuando es necesario.
-
----
-
-## 💾 Pendrive
-
-Necesitaremos un pendrive de al menos:
+Para un ordenador convencional de 64 bits seleccionaremos:
 
 ```text
-8 GB
+amd64
 ```
 
-Se recomienda utilizar uno vacío.
-
-> ⚠️ Rufus formateará el pendrive y eliminará todos sus datos.
-
----
-
-## 🌐 Conexión a Internet
-
-La instalación **Netinst** necesita conexión a Internet para descargar paquetes.
-
-Para el servidor recomendamos utilizar:
+Y utilizaremos preferiblemente la imagen:
 
 ```text
-Ethernet
+netinst
 ```
 
-en lugar de Wi-Fi, especialmente durante la instalación y configuración inicial.
+---
+
+## 1.4 Descargar Rufus
+
+Rufus nos permitirá convertir la ISO de Debian en un USB arrancable desde Windows.
+
+### Descarga oficial
+
+[Rufus — Página oficial](https://rufus.ie/)
+
+Podemos utilizar la versión normal o portable.
+
+No necesitamos instalar Rufus en el servidor.
 
 ---
 
-## 🧰 Resumen de descargas
+## 1.5 ¿Qué NO necesitamos descargar todavía?
 
-| Recurso            | Uso                         | Descarga                                                                                       |
-| ------------------ | --------------------------- | ---------------------------------------------------------------------------------------------- |
-| Debian 12 Bookworm | Sistema operativo           | [Debian 12](https://www.debian.org/releases/bookworm/debian-installer/?utm_source=chatgpt.com) |
-| Rufus              | Crear USB arrancable        | [Rufus oficial](https://rufus.ie/es/?utm_source=chatgpt.com)                                   |
-| CasaOS             | Administración del servidor | [CasaOS oficial](https://www.casaos.io/?utm_source=chatgpt.com)                                |
-| CasaOS GitHub      | Código y documentación      | [Repositorio de CasaOS](https://github.com/IceWhaleTech/CasaOS?utm_source=chatgpt.com)         |
+### CasaOS
+
+No debemos preocuparnos todavía por descargar CasaOS.
+
+Lo instalaremos directamente desde Debian una vez que tengamos el sistema funcionando.
+
+La instalación será:
+
+```text
+Debian
+   ↓
+XFCE
+   ↓
+Internet
+   ↓
+CasaOS
+```
 
 ---
 
-## ✅ Lista de comprobación
+### Docker
 
-Antes de continuar deberíamos tener:
+Tampoco descargaremos Docker manualmente.
 
-* [ ] Ordenador servidor
-* [ ] Ordenador Windows
-* [ ] Pendrive de 8 GB o más
-* [ ] ISO de Debian 12 Bookworm
-* [ ] Rufus
-* [ ] Conexión a Internet
-* [ ] Copia de seguridad de los datos importantes
-* [ ] Teclado y monitor conectados al servidor
+CasaOS utiliza Docker y durante su instalación preparará el entorno necesario.
 
-Una vez tengamos todo preparado podemos comenzar.
+Posteriormente comprobaremos que Docker funciona correctamente.
+
+---
+
+### Stremio
+
+Stremio se instalará posteriormente mediante Docker.
+
+---
+
+### ZeroTier
+
+ZeroTier se configurará al final del proyecto.
+
+En ese momento instalaremos el cliente correspondiente en los dispositivos que queramos conectar al servidor.
+
+[ZeroTier — Descargas oficiales](https://www.zerotier.com/download/)
+
+---
+
+## 1.6 Checklist antes de comenzar
+
+Antes de continuar debemos tener:
+
+* [ ] Ordenador servidor preparado.
+* [ ] Ordenador Windows preparado.
+* [ ] Pendrive de al menos 8 GB.
+* [ ] ISO de Debian 12 descargada.
+* [ ] Rufus descargado.
+* [ ] Monitor conectado.
+* [ ] Teclado conectado.
+* [ ] Internet disponible.
+* [ ] Cable Ethernet recomendado.
+* [ ] Copia de seguridad realizada.
+* [ ] Confirmado que podemos borrar el disco del servidor.
+
+Cuando todo esté preparado podemos comenzar.
 
 ---
 
 # 2. Crear el USB de Debian con Rufus
 
-Conectar el pendrive al ordenador Windows.
+Conectaremos el pendrive al ordenador Windows.
 
-Abrir Rufus.
+Abriremos Rufus.
 
-> ⚠️ Comprobar cuidadosamente que el dispositivo seleccionado sea el pendrive correcto.
+Seleccionaremos:
 
----
+* Nuestro pendrive.
+* La ISO de Debian 12.
 
-## 2.1 Seleccionar el dispositivo
-
-En **Dispositivo**, seleccionar el pendrive.
-
----
-
-## 2.2 Seleccionar la ISO
-
-En **Selección de arranque**, seleccionar:
-
-```text
-Disco o imagen ISO
-```
-
-Pulsar **SELECCIONAR**.
-
-Buscar la ISO de Debian 12 que hemos descargado.
-
----
-
-## 2.3 Configurar Rufus
-
-Para un ordenador moderno con UEFI:
+Configuración recomendada:
 
 ```text
 Esquema de partición: GPT
 Sistema de destino: UEFI
 ```
 
-Para equipos antiguos con BIOS/Legacy:
+Si Rufus ofrece FAT32 como sistema de archivos, podemos utilizarlo.
 
-```text
-Esquema de partición: MBR
-Sistema de destino: BIOS
-```
+Pulsaremos:
 
-En la mayoría de equipos modernos utilizaremos:
+**Empezar**
 
-```text
-GPT + UEFI
-```
+> ⚠️ El contenido del pendrive será eliminado.
+
+Esperaremos hasta que Rufus indique que el proceso ha terminado.
 
 ---
 
-## 2.4 Crear el USB
+# 3. Arrancar el servidor desde el USB
 
-Pulsar:
+Conectaremos el USB al ordenador que utilizaremos como servidor.
 
-**EMPEZAR**
-
-Rufus mostrará una advertencia indicando que los datos del USB serán eliminados.
-
-Confirmar.
-
-Esperar hasta que Rufus indique que el proceso ha terminado.
-
----
-
-# 3. Arrancar desde el USB
-
-Conectar el USB al ordenador donde instalaremos Debian.
-
-Encender o reiniciar el ordenador.
-
-Abrir el menú de arranque.
+Encenderemos el ordenador y abriremos el menú de arranque.
 
 Las teclas habituales son:
 
 * `F12`
 * `F11`
 * `F8`
-* `ESC`
+* `Esc`
+* `Del`
 
-Seleccionar el USB.
+La tecla depende del fabricante.
 
-Cuando aparezca el instalador de Debian seleccionar:
+Seleccionaremos el USB de Debian.
 
-```text
-Graphical Install
-```
+Deberíamos llegar al instalador de Debian.
 
 ---
 
 # 4. Instalar Debian
 
-Seguir el asistente gráfico.
+Seleccionaremos:
+
+**Graphical Install**
+
+---
 
 ## 4.1 Idioma
 
-Seleccionar:
+Seleccionaremos:
 
-```text
-Español
-```
+**Español**
+
+---
 
 ## 4.2 País
 
-Seleccionar:
+Seleccionaremos:
 
-```text
-España
-```
+**España**
+
+---
 
 ## 4.3 Teclado
 
-Seleccionar:
+Seleccionaremos:
 
-```text
-Español
-```
+**Español**
+
+---
 
 ## 4.4 Nombre del equipo
 
-Por ejemplo:
+Podemos utilizar:
 
 ```text
 debian-server
 ```
 
+---
+
 ## 4.5 Dominio
 
-Si no tenemos un dominio propio:
-
-```text
-Dejar vacío
-```
-
-## 4.6 Usuarios
-
-Crear el usuario que utilizaremos para administrar Debian.
+Si no tenemos un dominio propio, podemos dejar este campo vacío.
 
 ---
 
-# 5. Configurar el mirror de paquetes
+## 4.6 Crear usuario
 
-Cuando Debian solicite el servidor desde el que descargar paquetes:
+Crearemos el usuario que utilizaremos para administrar el servidor.
 
-### País
+Por ejemplo:
 
 ```text
-España
+servidor
 ```
 
-### Mirror
+Elegiremos una contraseña segura.
+
+---
+
+## 4.7 Particionado
+
+Si el ordenador se va a utilizar exclusivamente como servidor, podemos seleccionar:
+
+**Guiado - utilizar todo el disco**
+
+Después:
+
+**Todos los archivos en una partición**
+
+> ⚠️ **MUY IMPORTANTE:** comprobaremos cuidadosamente el disco antes de confirmar.
+
+La instalación puede borrar completamente el contenido del disco.
+
+---
+
+# 5. Configurar Debian
+
+Durante la instalación Debian nos preguntará por el servidor de paquetes.
+
+Seleccionaremos:
+
+**España**
+
+y:
 
 ```text
 deb.debian.org
 ```
 
-### Proxy
-
-Si no utilizamos un proxy:
-
-```text
-Dejar vacío
-```
+Continuaremos con la instalación.
 
 ---
 
 # 6. Instalar XFCE
 
-Cuando aparezca:
+Cuando Debian pregunte qué software queremos instalar, seleccionaremos:
 
-**Selección de software**
+* Entorno de escritorio Debian
+* XFCE
+* Utilidades estándar del sistema
 
-Seleccionar:
+No es necesario instalar varios escritorios.
 
-```text
-[x] Entorno de escritorio Debian
-[x] XFCE
-[x] Utilidades estándar del sistema
-```
-
-No es necesario instalar varios entornos gráficos.
-
-XFCE proporciona una interfaz gráfica ligera que resulta adecuada para este proyecto.
+XFCE será el entorno gráfico de nuestro servidor.
 
 ---
 
 # 7. Instalar GRUB
 
-Cuando Debian pregunte:
+Cuando Debian pregunte si queremos instalar GRUB:
 
-> ¿Instalar el cargador de arranque GRUB?
+**Sí**
 
-Seleccionar:
+Seleccionaremos el disco principal.
 
-```text
-Sí
-```
-
-Cuando pregunte dónde instalarlo, seleccionar el disco principal.
-
-Por ejemplo:
+Normalmente será:
 
 ```text
 /dev/sda
@@ -385,19 +402,7 @@ o:
 /dev/nvme0n1
 ```
 
-### ⚠️ No confundir disco y partición
-
-Correcto:
-
-```text
-/dev/sda
-```
-
-Incorrecto:
-
-```text
-/dev/sda1
-```
+> ⚠️ Seleccionaremos el disco completo, no una partición.
 
 ---
 
@@ -405,23 +410,34 @@ Incorrecto:
 
 Cuando termine la instalación:
 
-1. Reiniciar.
-2. Retirar el USB.
-3. Arrancar Debian.
-4. Iniciar sesión.
+1. Retiraremos el USB.
+2. Reiniciaremos el ordenador.
+3. Iniciaremos sesión.
+4. Entraremos en XFCE.
+
+Ya tenemos Debian instalado.
 
 ---
 
 ## 8.1 Actualizar Debian
 
-Abrir una terminal:
+Abriremos una terminal:
 
 ```shell
 sudo apt update
+```
+
+Después:
+
+```shell
 sudo apt upgrade -y
 ```
 
-Instalar `curl`:
+---
+
+## 8.2 Instalar herramientas necesarias
+
+Instalaremos `curl`:
 
 ```shell
 sudo apt install -y curl
@@ -429,9 +445,9 @@ sudo apt install -y curl
 
 ---
 
-## 8.2 Obtener la IP
+## 8.3 Comprobar la IP
 
-Ejecutar:
+Ejecutaremos:
 
 ```shell
 hostname -I
@@ -443,35 +459,44 @@ También podemos utilizar:
 ip addr
 ```
 
-Ejemplo:
+Por ejemplo:
 
 ```text
-192.168.1.50
+192.168.1.100
 ```
 
-Guardar esta dirección porque la utilizaremos para acceder a CasaOS.
+Guardaremos esta dirección porque la utilizaremos para acceder a CasaOS desde nuestra red local.
 
 ---
 
 # 9. Instalar CasaOS
 
-CasaOS proporciona una interfaz web para administrar el servidor.
+Ahora que tenemos:
 
-Ejecutar:
+* Debian instalado.
+* XFCE funcionando.
+* Internet funcionando.
+* `curl` instalado.
+
+Podemos instalar CasaOS.
+
+Ejecutaremos:
 
 ```shell
 curl -fsSL https://get.casaos.io | sudo bash
 ```
 
-Esperar a que termine la instalación.
+Esperaremos a que finalice el proceso.
 
-El instalador oficial comprueba los requisitos del sistema y gestiona las dependencias necesarias.
+> 📌 CasaOS se instalará ahora, no antes, porque necesitamos tener Debian funcionando.
 
 ---
 
-## 9.1 Acceder a CasaOS
+# 10. Acceder a CasaOS
 
-Desde otro ordenador conectado a la misma red abrir:
+Desde otro ordenador conectado a nuestra red local abriremos un navegador.
+
+Utilizaremos:
 
 ```text
 http://IP_DEL_SERVIDOR
@@ -480,52 +505,42 @@ http://IP_DEL_SERVIDOR
 Por ejemplo:
 
 ```text
-http://192.168.1.50
+http://192.168.1.100
 ```
 
-Completar el asistente inicial de CasaOS.
+Completaremos el asistente inicial de CasaOS.
 
 ---
 
-# 10. Comprobar Docker
+# 11. Comprobar Docker
 
-CasaOS utiliza Docker para ejecutar sus aplicaciones.
+CasaOS utiliza Docker para ejecutar las aplicaciones.
 
-Comprobar el servicio:
+Comprobaremos el servicio:
 
 ```shell
 sudo systemctl status docker
 ```
 
-Debemos encontrar:
-
-```text
-Active: active (running)
-```
-
-Si Docker está detenido:
+Si fuera necesario:
 
 ```shell
 sudo systemctl start docker
 ```
 
-Para habilitar el inicio automático:
+Configuraremos Docker para arrancar automáticamente:
 
 ```shell
 sudo systemctl enable docker
 ```
 
----
-
-## 10.1 Comprobar Docker
+Comprobaremos la versión:
 
 ```shell
 docker --version
 ```
 
----
-
-## 10.2 Comprobar Docker Compose
+Y Docker Compose:
 
 ```shell
 docker compose version
@@ -533,88 +548,51 @@ docker compose version
 
 ---
 
-# 11. Administrar contenedores Docker
+# 12. Administrar contenedores Docker
 
-## Ver contenedores activos
+## 12.1 Ver contenedores activos
 
 ```shell
 docker ps
 ```
 
-## Ver todos los contenedores
+## 12.2 Ver todos los contenedores
 
 ```shell
 docker ps -a
 ```
 
-Ejemplo:
-
-```text
-CONTAINER ID   IMAGE       STATUS          NAMES
-a1b2c3d4e5f6   example     Up 10 minutes   example
-```
-
-### Estados habituales
-
-```text
-Up
-```
-
-El contenedor está funcionando.
-
-```text
-Exited
-```
-
-El contenedor está detenido.
-
-```text
-Restarting
-```
-
-El contenedor está reiniciándose.
-
----
-
-## Iniciar un contenedor
-
-Por nombre:
+## 12.3 Iniciar un contenedor
 
 ```shell
 docker start NOMBRE_DEL_CONTENEDOR
 ```
 
-Por Container ID:
+También:
 
 ```shell
 docker start CONTAINER_ID
 ```
 
----
-
-## Reiniciar
+## 12.4 Reiniciar un contenedor
 
 ```shell
 docker restart CONTAINER_ID
 ```
 
----
-
-## Detener
+## 12.5 Detener un contenedor
 
 ```shell
 docker stop CONTAINER_ID
 ```
 
----
-
-## Ver logs
+## 12.6 Ver logs
 
 ```shell
 docker logs CONTAINER_ID
 ```
 
-En tiempo real:
+## 12.7 Ver logs en tiempo real
 
 ```shell
 docker logs -f CONTAINER_ID
@@ -622,45 +600,41 @@ docker logs -f CONTAINER_ID
 
 ---
 
-# 12. Docker Compose
+# 13. Docker Compose
 
-Entrar en la carpeta que contiene `compose.yml` o `docker-compose.yml`:
+Docker Compose permite administrar aplicaciones compuestas por varios contenedores.
+
+Entraremos en la carpeta del proyecto:
 
 ```shell
 cd /ruta/del/proyecto
 ```
 
-## Iniciar
+Iniciaremos los servicios:
 
 ```shell
 docker compose up -d
 ```
 
-## Ver estado
+Comprobaremos el estado:
 
 ```shell
 docker compose ps
 ```
 
-## Ver logs
+Veremos los logs:
 
 ```shell
 docker compose logs
 ```
 
-## Ver logs en tiempo real
+Para seguirlos en tiempo real:
 
 ```shell
 docker compose logs -f
 ```
 
-Salir de los logs:
-
-```text
-Ctrl + C
-```
-
-## Detener
+Para detener los servicios:
 
 ```shell
 docker compose down
@@ -668,21 +642,25 @@ docker compose down
 
 ---
 
-# 13. Trabajar con Stremio
+# 14. Instalar y administrar Stremio
 
-> ⚠️ Una imagen Docker de Stremio que proporcione un servidor/backend no necesariamente proporciona una interfaz web completa.
+Una vez que CasaOS y Docker funcionan correctamente podemos instalar nuestras aplicaciones.
 
-Primero comprobar los contenedores:
+En este proyecto utilizaremos Stremio como ejemplo.
+
+> ⚠️ La configuración exacta dependerá de la imagen Docker utilizada. Debemos consultar la documentación de la imagen antes de instalarla.
+
+---
+
+## 14.1 Comprobar los contenedores
 
 ```shell
 docker ps -a
 ```
 
-Buscar el contenedor correspondiente a Stremio.
-
 ---
 
-## 13.1 Comprobar el estado
+## 14.2 Comprobar Stremio
 
 ```shell
 docker ps
@@ -690,13 +668,13 @@ docker ps
 
 ---
 
-## 13.2 Consultar los logs
+## 14.3 Consultar los logs
 
 ```shell
 docker logs NOMBRE_DEL_CONTENEDOR
 ```
 
-o:
+También:
 
 ```shell
 docker logs CONTAINER_ID
@@ -710,13 +688,17 @@ docker logs -f CONTAINER_ID
 
 ---
 
-## 13.3 Comprobar los puertos
+## 14.4 Comprobar los puertos
 
 ```shell
 docker ps
 ```
 
-Revisar la columna `PORTS`.
+Buscaremos la columna:
+
+```text
+PORTS
+```
 
 Por ejemplo:
 
@@ -724,187 +706,461 @@ Por ejemplo:
 0.0.0.0:11470->11470/tcp
 ```
 
-Si el servicio utiliza ese puerto, se puede probar:
+En ese caso podríamos acceder desde la red local mediante:
 
 ```text
 http://IP_DEL_SERVIDOR:11470
 ```
 
+> ⚠️ Que un contenedor exponga un puerto no significa necesariamente que proporcione una interfaz web completa de Stremio. Dependerá de la imagen utilizada.
+
 ---
 
-# 14. Eliminar Stremio
+# 15. Instalar ZeroTier
 
-## Ver el Container ID
+Una vez que todo el servidor funciona correctamente, configuraremos el acceso remoto.
+
+ZeroTier permitirá crear una red privada entre:
+
+* El servidor.
+* Nuestro ordenador.
+* Nuestro portátil.
+* Nuestro móvil.
+* Otros dispositivos autorizados.
+
+La estructura será:
+
+```text
+              INTERNET
+                  │
+                  ▼
+             ZeroTier
+                  │
+        ┌─────────┼─────────┐
+        │         │         │
+       PC       Móvil    Servidor
+                           │
+                         CasaOS
+```
+
+---
+
+## 15.1 Instalar ZeroTier en Debian
+
+En el servidor ejecutaremos:
+
+```shell
+curl -s https://install.zerotier.com | sudo bash
+```
+
+Comprobaremos el servicio:
+
+```shell
+sudo systemctl status zerotier-one
+```
+
+---
+
+# 16. Configurar la red de ZeroTier
+
+## 16.1 Crear una red
+
+Desde ZeroTier crearemos una nueva red privada.
+
+Obtendremos un:
+
+**Network ID**
+
+Por ejemplo:
+
+```text
+8056c2e21c000001
+```
+
+> ⚠️ Este Network ID es solamente un ejemplo.
+
+---
+
+## 16.2 Unir el servidor
+
+En Debian:
+
+```shell
+sudo zerotier-cli join NETWORK_ID
+```
+
+Ejemplo:
+
+```shell
+sudo zerotier-cli join 8056c2e21c000001
+```
+
+Comprobaremos:
+
+```shell
+sudo zerotier-cli listnetworks
+```
+
+---
+
+## 16.3 Autorizar el servidor
+
+Desde la administración de ZeroTier:
+
+1. Abriremos nuestra red.
+2. Buscaremos el servidor.
+3. Autorizaremos el dispositivo.
+4. Podemos asignarle un nombre.
+
+Por ejemplo:
+
+```text
+debian-server
+```
+
+Volveremos a comprobar:
+
+```shell
+sudo zerotier-cli listnetworks
+```
+
+El estado debería aparecer como:
+
+```text
+OK
+```
+
+---
+
+## 16.4 Obtener la IP de ZeroTier
+
+Ejecutaremos:
+
+```shell
+ip addr
+```
+
+Buscaremos una interfaz similar a:
+
+```text
+ztxxxxxxxx
+```
+
+y su dirección IP.
+
+Por ejemplo:
+
+```text
+10.147.17.10
+```
+
+> ⚠️ La dirección será diferente en cada red.
+
+---
+
+# 17. Acceder a CasaOS desde cualquier lugar
+
+Ahora instalaremos ZeroTier en el ordenador o móvil desde el que queramos acceder al servidor.
+
+Todos los dispositivos deberán conectarse a la misma red ZeroTier.
+
+La arquitectura será:
+
+```text
+                  INTERNET
+                      │
+                      ▼
+                ┌───────────┐
+                │ ZeroTier  │
+                └─────┬─────┘
+                      │
+             RED PRIVADA VIRTUAL
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+      Windows       Móvil       Servidor
+                                  │
+                                CasaOS
+```
+
+---
+
+## 17.1 Comprobar conexión
+
+Desde el dispositivo remoto:
+
+```shell
+ping IP_ZERO_TIER_DEL_SERVIDOR
+```
+
+Por ejemplo:
+
+```shell
+ping 10.147.17.10
+```
+
+Si recibimos respuesta, existe comunicación.
+
+---
+
+## 17.2 Acceder a CasaOS
+
+En el navegador introduciremos:
+
+```text
+http://IP_ZERO_TIER_DEL_SERVIDOR
+```
+
+Por ejemplo:
+
+```text
+http://10.147.17.10
+```
+
+Ahora podremos acceder a CasaOS desde fuera de nuestra red doméstica siempre que:
+
+* El servidor esté encendido.
+* ZeroTier esté funcionando.
+* El dispositivo remoto esté conectado a ZeroTier.
+* El dispositivo esté autorizado en nuestra red.
+
+---
+
+# 18. ¿Por qué utilizar ZeroTier?
+
+Sin ZeroTier tendríamos que configurar el router para exponer servicios hacia Internet.
+
+Por ejemplo:
+
+```text
+Internet
+   │
+   ▼
+Router
+   │
+   ▼
+CasaOS
+```
+
+Con ZeroTier:
+
+```text
+Internet
+   │
+   ▼
+ZeroTier
+   │
+   ▼
+Red privada
+   │
+   ▼
+CasaOS
+```
+
+De esta manera no necesitamos publicar directamente la interfaz de administración de CasaOS en Internet para poder utilizarla remotamente.
+
+> 🔐 ZeroTier no sustituye las buenas prácticas de seguridad. Debemos utilizar contraseñas seguras, mantener el sistema actualizado y autorizar únicamente nuestros dispositivos.
+
+---
+
+# 19. Eliminar Stremio
+
+Comprobaremos los contenedores:
 
 ```shell
 docker ps -a
 ```
 
-Ejemplo:
-
-```text
-CONTAINER ID   IMAGE      STATUS        NAMES
-a1b2c3d4e5f6   stremio    Up 5 minutes  stremio
-```
-
-## Detener
+Detendremos el contenedor:
 
 ```shell
-docker stop a1b2c3d4e5f6
+docker stop CONTAINER_ID
 ```
 
-## Eliminar
+Lo eliminaremos:
 
 ```shell
-docker rm a1b2c3d4e5f6
+docker rm CONTAINER_ID
 ```
 
-## Detener y eliminar directamente
+También podemos utilizar:
 
 ```shell
-docker rm -f a1b2c3d4e5f6
+docker rm -f CONTAINER_ID
 ```
 
----
-
-## Eliminar la imagen
-
-Primero:
+Comprobaremos las imágenes:
 
 ```shell
 docker images
 ```
 
-Después:
+Y eliminaremos la imagen:
 
 ```shell
 docker rmi NOMBRE_O_ID_DE_LA_IMAGEN
 ```
 
-> ⚠️ Eliminar una imagen no elimina necesariamente los volúmenes que contienen los datos de la aplicación.
-
 ---
 
-# 15. Diagnóstico
+# 20. Diagnóstico
 
-Cuando una aplicación no funcione, seguir este orden.
-
-## 15.1 Ver contenedores
-
-```shell
-docker ps -a
-```
-
-## 15.2 Ver logs
-
-```shell
-docker logs CONTAINER_ID
-```
-
-## 15.3 Comprobar Docker
+## Comprobar Docker
 
 ```shell
 sudo systemctl status docker
 ```
 
-## 15.4 Comprobar puertos
+## Ver contenedores
 
 ```shell
-docker ps
+docker ps -a
 ```
 
-## 15.5 Si utiliza Compose
+## Ver logs
 
 ```shell
-docker compose ps
+docker logs CONTAINER_ID
 ```
 
-Después:
+## Ver logs en tiempo real
 
 ```shell
-docker compose logs
+docker logs -f CONTAINER_ID
+```
+
+## Comprobar ZeroTier
+
+```shell
+sudo systemctl status zerotier-one
+```
+
+## Ver redes ZeroTier
+
+```shell
+sudo zerotier-cli listnetworks
+```
+
+## Ver interfaces de red
+
+```shell
+ip addr
+```
+
+## Probar conexión ZeroTier
+
+```shell
+ping IP_ZERO_TIER_DEL_SERVIDOR
 ```
 
 ---
 
-# 16. Arquitectura final
+# 21. Arquitectura final
+
+Al finalizar tendremos:
 
 ```text
-                         ┌─────────────────────┐
-                         │       WINDOWS       │
-                         │                     │
-                         │       Rufus         │
-                         └──────────┬──────────┘
-                                    │
-                                    │ USB Debian
-                                    ▼
-┌──────────────────────────────────────────────────────┐
-│                       SERVIDOR                       │
-│                                                      │
-│  ┌────────────────────────────────────────────────┐  │
-│  │                    DEBIAN                      │  │
-│  │                                                │  │
-│  │  ┌──────────────────────────────────────────┐  │  │
-│  │  │                   XFCE                   │  │  │
-│  │  │              Interfaz gráfica             │  │  │
-│  │  └──────────────────────────────────────────┘  │  │
-│  │                                                │  │
-│  │  ┌──────────────────────────────────────────┐  │  │
-│  │  │                  CASAOS                  │  │  │
-│  │  │               Interfaz web                │  │  │
-│  │  └─────────────────────┬────────────────────┘  │  │
-│  │                        │                       │  │
-│  │                        ▼                       │  │
-│  │  ┌──────────────────────────────────────────┐  │  │
-│  │  │                  DOCKER                  │  │  │
-│  │  │                                          │  │  │
-│  │  │   ┌────────────┐    ┌────────────┐      │  │  │
-│  │  │   │ Contenedor │    │ Contenedor │      │  │  │
-│  │  │   │     #1     │    │     #2     │      │  │  │
-│  │  │   └────────────┘    └────────────┘      │  │  │
-│  │  │                                          │  │  │
-│  │  └──────────────────────────────────────────┘  │  │
-│  │                                                │  │
-│  └────────────────────────────────────────────────┘  │
-│                                                      │
-└──────────────────────────────────────────────────────┘
+                         INTERNET
+                            │
+                            ▼
+                     ┌─────────────┐
+                     │  ZeroTier   │
+                     │ Red privada │
+                     └──────┬──────┘
+                            │
+             ┌──────────────┼──────────────┐
+             │              │              │
+             ▼              ▼              ▼
+          Windows         Móvil        Portátil
+             │              │              │
+             └──────────────┼──────────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │      SERVIDOR       │
+                 │                     │
+                 │     Debian 12       │
+                 │          │          │
+                 │        XFCE         │
+                 │          │          │
+                 │       CasaOS        │
+                 │          │          │
+                 │       Docker        │
+                 │          │          │
+                 │    ┌─────┴─────┐    │
+                 │    │           │    │
+                 │ Stremio       ...   │
+                 │                     │
+                 │     ZeroTier        │
+                 └─────────────────────┘
 ```
 
 ---
 
-# 🎯 Objetivo del proyecto
+# 🏁 Resultado final
 
-Al finalizar tendremos un servidor doméstico basado en Debian con:
+Al finalizar este proyecto tendremos:
 
-* **Debian 12 Bookworm**
-* **XFCE**
-* **GRUB**
-* **CasaOS**
-* **Docker**
-* **Docker Compose**
+* 🐧 Debian 12 Bookworm.
+* 🖥️ XFCE.
+* ⚙️ GRUB.
+* 🏠 CasaOS.
+* 🐳 Docker.
+* 📦 Docker Compose.
+* 🎬 Stremio mediante Docker.
+* 🔐 ZeroTier.
+* 🌍 Acceso remoto privado a CasaOS.
+* 💻 Administración desde Windows.
+* 📱 Posibilidad de administrar el servidor desde el móvil.
 
-CasaOS proporcionará una interfaz web para administrar las aplicaciones y Docker permitirá ejecutar los diferentes servicios en contenedores.
+El proceso completo será:
+
+```text
+1. Descargar Debian + Rufus
+          ↓
+2. Crear USB
+          ↓
+3. Instalar Debian
+          ↓
+4. Configurar XFCE
+          ↓
+5. Instalar CasaOS
+          ↓
+6. Comprobar Docker
+          ↓
+7. Instalar Stremio
+          ↓
+8. Instalar ZeroTier
+          ↓
+9. Conectar nuestros dispositivos
+          ↓
+10. Acceder remotamente a CasaOS
+```
 
 ---
 
-# 📝 Notas importantes
+# 🔗 Enlaces oficiales
 
-* Realizar siempre una copia de seguridad antes de instalar Debian.
-* Comprobar cuidadosamente el disco seleccionado durante el particionado.
-* No ejecutar comandos que no entendamos.
-* Tener especial cuidado con `docker rm`, `docker rmi` y comandos relacionados con volúmenes.
-* Mantener Debian actualizado.
-* Mantener CasaOS actualizado.
-* Guardar los archivos `compose.yml` utilizados para desplegar servicios.
-* Preferir Ethernet para el servidor.
-* Antes de instalar una aplicación Docker, comprobar qué imagen estamos utilizando y su documentación.
+### Debian
+
+[Debian 12 Bookworm — Instalación y descargas](https://www.debian.org/releases/bookworm/debian-installer/)
+
+### Rufus
+
+[Rufus — Descarga oficial](https://rufus.ie/)
+
+### CasaOS
+
+[CasaOS — Repositorio oficial](https://github.com/IceWhaleTech/CasaOS)
+
+### ZeroTier
+
+[ZeroTier — Descargas oficiales](https://www.zerotier.com/download/)
+
+### Documentación de ZeroTier
+
+[ZeroTier — Documentación oficial](https://docs.zerotier.com/)
 
 ---
 
-## 📚 Fuentes oficiales
-
-* [Debian](https://www.debian.org/?utm_source=chatgpt.com)
-* [Debian 12 Bookworm](https://www.debian.org/releases/bookworm/?utm_source=chatgpt.com)
-* [Rufus](https://rufus.ie/es/?utm_source=chatgpt.com)
-* [CasaOS](https://www.casaos.io/?utm_source=chatgpt.com)
-* [CasaOS en GitHub](https://github.com/IceWhaleTech/CasaOS?utm_source=chatgpt.com)
+> 📌 **Nota:** esta guía utiliza Debian 12 Bookworm para mantener el proyecto alineado con la versión que CasaOS documenta como probada y recomendada.
